@@ -1,9 +1,12 @@
 const Login = () => {
-    return (
-        <div>
-            <h1>Login Page</h1>
-        </div>
-    );
+  return (
+    <div>
+      <div>
+        <label htmlFor="">Email</label>
+        <input type="text" name="" id="" />
+      </div>
+    </div>
+  );
 };
 
 export default Login;
