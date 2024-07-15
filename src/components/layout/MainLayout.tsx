@@ -1,7 +1,9 @@
 import React from "react";
-import { Layout, theme } from "antd";
+import { Button, Layout, theme } from "antd";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import { useAppDispatch } from "../../redux/features/hooks";
+import { logout } from "../../redux/features/auth/authSlice";
 
 const { Header, Content } = Layout;
 
@@ -31,6 +33,12 @@ const { Header, Content } = Layout;
 // ];
 
 const App: React.FC = () => {
+  const dispatch = useAppDispatch();
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -39,7 +47,9 @@ const App: React.FC = () => {
     <Layout style={{ height: "100vh" }}>
       <Sidebar />
       <Layout>
-        <Header style={{ padding: 0, background: "#001529" }} />
+        <Header style={{ padding: 0, background: "#001529" }}>
+          <Button onClick={handleLogout}>Log out</Button>
+        </Header>
         <Content style={{ margin: "24px 16px 0" }}>
           <div
             style={{
