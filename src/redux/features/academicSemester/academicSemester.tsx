@@ -8,7 +8,6 @@ const academicSemesterApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
-   
   }),
 });
 
