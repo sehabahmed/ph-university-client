@@ -12,15 +12,9 @@ export type TTableData = Pick<
 type OnChange = NonNullable<TableProps<TTableData>["onChange"]>;
 type Filters = Parameters<OnChange>[1];
 
-// type GetSingle<T> = T extends (infer U)[] ? U : never;
-// type Sorts = GetSingle<Parameters<OnChange>[2]>;
-
 const AcademicSemester = () => {
   const [params, setParams] = useState<TQueryParam[] | undefined>(undefined);
-  const {
-    data: semesterData,
-    isFetching,
-  } = useGetAllSemestersQuery(params);
+  const { data: semesterData, isFetching } = useGetAllSemestersQuery(params);
 
   const tableData = semesterData?.data?.map(
     ({ _id, name, year, startMonth, endMonth }) => ({
@@ -33,12 +27,9 @@ const AcademicSemester = () => {
   );
 
   const [filteredInfo, setFilteredInfo] = useState<Filters>({});
-  // const [sortedInfo, setSortedInfo] = useState<Sorts>({});
 
   const handleChange: OnChange = (_pagination, filters, _sorter, extra) => {
-    // console.log("Various parameters", pagination, filters, sorter);
     setFilteredInfo(filters);
-    // setSortedInfo(sorter as Sorts);
     if (extra.action === "filter") {
       const queryParams: TQueryParam[] = [];
 
@@ -55,22 +46,6 @@ const AcademicSemester = () => {
     }
   };
 
-  // const clearFilters = () => {
-  //   setFilteredInfo({});
-  // };
-
-  // const clearAll = () => {
-  //   setFilteredInfo({});
-  //   setSortedInfo({});
-  // };
-
-  // const setAgeSort = () => {
-  //   setSortedInfo({
-  //     order: "descend",
-  //     columnKey: "age",
-  //   });
-  // };
-
   const columns: TableColumnsType<TTableData> = [
     {
       title: "Name",
@@ -84,7 +59,6 @@ const AcademicSemester = () => {
       filteredValue: filteredInfo.name || null,
       onFilter: (value, record) => record.name.includes(value as string),
       sorter: (a, b) => a.name.length - b.name.length,
-      // sortOrder: sortedInfo.columnKey === "name" ? sortedInfo.order : null,
       ellipsis: true,
     },
     {
@@ -97,6 +71,10 @@ const AcademicSemester = () => {
         { text: "2027", value: "2027" },
         { text: "2028", value: "2028" },
       ],
+      filteredValue: filteredInfo.name || null,
+      onFilter: (value, record) => record.name.includes(value as string),
+      sorter: (a, b) => a.name.length - b.name.length,
+      ellipsis: true,
     },
     {
       title: "Start Month",
@@ -119,11 +97,6 @@ const AcademicSemester = () => {
 
   return (
     <>
-      {/* <Space style={{ marginBottom: 16 }}>
-        <Button onClick={setAgeSort}>Sort age</Button>
-        <Button onClick={clearFilters}>Clear filters</Button>
-        <Button onClick={clearAll}>Clear filters and sorters</Button>
-      </Space> */}
       <Table<TTableData>
         loading={isFetching}
         columns={columns}
