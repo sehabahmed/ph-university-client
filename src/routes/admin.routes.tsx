@@ -88,7 +88,7 @@ export const adminPaths = [
         element: <StudentData />,
       },
       {
-        path: "students-data/:studentId",
+        path: "student-data/:studentId",
         element: <StudentDetails />,
       },
     ],
