@@ -10,47 +10,48 @@ import { TResponse } from "../../../types/global.type";
 import { TAcademicSemester } from "../../../types/academicManagement.type";
 import PHDatePicker from "../../../components/form/PHDatePicker";
 import PHInput from "../../../components/form/PHInput";
-import { useAddSemesterRegistrationMutation } from "../../../redux/features/admin/courseManagement.api";
+import { useAddSemesterRegistrationMutation, useGetAllCoursesQuery } from "../../../redux/features/admin/courseManagement.api";
 
 const CreateCourse = () => {
-  const { data: academicSemester } = useGetAllSemestersQuery([
-    { name: "sort", value: "year" },
-  ]);
+  
   const [addSemesterRegistration] = useAddSemesterRegistrationMutation();
+  const {data: courseData} = useGetAllCoursesQuery(undefined)
 
-  console.log(academicSemester);
 
-  const academicSemesterOptions = academicSemester?.data?.map((item) => ({
+  const preRequisiteCoursesOptions = courseData?.data?.map((item) => ({
     value: item._id,
-    label: `${item.name} ${item.year}`,
+    label: item.title,
   }));
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     const toastId = toast.loading("Creating...");
 
-    const semesterRegistrationData = {
+    const createCourseData = {
       ...data,
-      minCredit: Number(data.minCredit),
-      maxCredit: Number(data.maxCredit),
+      isDeleted: false,
+      preRequisiteCourses: data.preRequisiteCourses.map(item => ({
+        course: item,
+        isDeleted: false
+      }))
     };
 
-    console.log("semesterData", semesterRegistrationData);
+    console.log("create course", createCourseData);
 
-    try {
-      console.log(semesterRegistrationData);
+    // try {
+    //   console.log(createCourseData);
 
-      const res = (await addSemesterRegistration(
-        semesterRegistrationData
-      )) as TResponse<TAcademicSemester>;
-      if (res.error) {
-        toast.error(res.error.data.message, { id: toastId });
-      } else {
-        toast.success("Semester Created Successfully", { id: toastId });
-      }
-      console.log(res);
-    } catch (error) {
-      toast.error("Something went wrong", { id: toastId });
-    }
+    //   const res = (await addSemesterRegistration(
+    //     semesterRegistrationData
+    //   )) as TResponse<TAcademicSemester>;
+    //   if (res.error) {
+    //     toast.error(res.error.data.message, { id: toastId });
+    //   } else {
+    //     toast.success("Semester Created Successfully", { id: toastId });
+    //   }
+    //   console.log(res);
+    // } catch (error) {
+    //   toast.error("Something went wrong", { id: toastId });
+    // }
   };
 
   return (
@@ -63,10 +64,7 @@ const CreateCourse = () => {
           <PHInput type="text" name="credits" label="Credits" />
           <PHSelect
           mode="multiple"
-          options={[
-            {value: 'test', label:'test'},
-            {value: 'test2', label:'test 2'},
-          ]} name="preRequisiteCourses" label="PreRequisite Courses" />
+          options={preRequisiteCoursesOptions} name="preRequisiteCourses" label="PreRequisite Courses" />
           <Button className="" htmlType="submit">
             Submit
           </Button>
