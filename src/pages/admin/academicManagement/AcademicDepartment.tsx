@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { TQueryParam } from "../../../constants/global";
 import { useGetAllDepartmentQuery } from "../../../redux/features/admin/adminManagement.api";
 
-export type TTableData = Pick<TAcademicDepartment, "name" | "academicFaculty">;
+export type TTableData = Pick<TAcademicDepartment, "name" >;
 type OnChange = NonNullable<TableProps<TTableData>["onChange"]>;
 type Filters = Parameters<OnChange>[1];
 
