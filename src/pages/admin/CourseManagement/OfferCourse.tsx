@@ -1,16 +1,16 @@
 import { FieldValues, SubmitHandler } from "react-hook-form";
 import PHForm from "../../../components/form/PHForm";
 import { Button, Col, Flex } from "antd";
-import { toast } from "sonner";
 import PHInput from "../../../components/form/PHInput";
-import { useGetAllCoursesQuery } from "../../../redux/features/admin/courseManagement.api";
+import { useGetAllCoursesQuery, useGetCourseFacultyQuery } from "../../../redux/features/admin/courseManagement.api";
 import PHSelectWithWatch from "../../../components/form/PHSelectWithWatch";
 import { useState } from "react";
+import PHSelect from "../../../components/form/PHSelect";
 
 const OfferCourse = () => {
   const [ id, setId ] = useState("");
   const { data: allCourses } = useGetAllCoursesQuery(undefined);
-
+  const { data: courseFaculty } = useGetCourseFacultyQuery(undefined);
   console.log("inside parent component", id);
 
   const courseOptions = allCourses?.data?.map((item) => ({
@@ -18,24 +18,16 @@ const OfferCourse = () => {
     label: item.title,
   }));
 
-  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    const toastId = toast.loading("Creating...");
-console.log(data)
-    // try {
-    //   console.log(semesterRegistrationData);
+  const courseFacultyOptions = courseFaculty?.data?.map(item => ({
+    value: item._id,
+    label: `${item.name.firstName} ${item.name.middleName} ${item.name.lastName}`
+  }))
 
-    //   const res = (await addSemesterRegistration(
-    //     semesterRegistrationData
-    //   )) as TResponse<TAcademicSemester>;
-    //   if (res.error) {
-    //     toast.error(res.error.data.message, { id: toastId });
-    //   } else {
-    //     toast.success("Semester Created Successfully", { id: toastId });
-    //   }
-    //   console.log(res);
-    // } catch (error) {
-    //   toast.error("Something went wrong", { id: toastId });
-    // }
+  console.log(courseFacultyOptions);
+
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    // const toastId = toast.loading("Creating...");
+    console.log(data);
   };
 
   return (
@@ -50,7 +42,7 @@ console.log(data)
           />
 
           <PHInput type="text" name="faculty" label="Faculty" disabled={!id} />
-
+          <PHSelect options={courseFacultyOptions} name="faculty" label="Faculty"/>
           <Button className="" htmlType="submit">
             Submit
           </Button>
