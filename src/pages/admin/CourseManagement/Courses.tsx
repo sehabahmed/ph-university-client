@@ -1,17 +1,18 @@
 import { Button, Modal, Table, TableColumnsType } from "antd";
-import { useGetAllCoursesQuery } from "../../../redux/features/admin/courseManagement.api";
+import {
+  useAddFacultiesMutation,
+  useGetAllCoursesQuery,
+} from "../../../redux/features/admin/courseManagement.api";
 import { TCourses } from "../../../types";
 import { useState } from "react";
 import PHForm from "../../../components/form/PHForm";
 import PHSelect from "../../../components/form/PHSelect";
-import { SubmitHandler } from "react-hook-form";
 import { useGetAllUserFacultiesQuery } from "../../../redux/features/admin/userManagement.api";
 
 export type TTableData = Pick<TCourses, "title" | "code">;
 
 const Courses = () => {
   const { data: courseData } = useGetAllCoursesQuery(undefined);
-  console.log(courseData);
 
   const tableData = (courseData?.data as TCourses[])?.map(
     ({ _id, title, code }) => ({
@@ -36,7 +37,7 @@ const Courses = () => {
       title: "Action",
       key: "x",
       render: (item) => {
-        return <AddFacultyModal data={item} />;
+        return <AddFacultyModal facultyInfo={item} />;
       },
     },
   ];
@@ -48,34 +49,46 @@ const Courses = () => {
   );
 };
 
-const AddFacultyModal = ({ data }) => {
-  // console.log(data)
+const AddFacultyModal = ({ facultyInfo }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { data: facultiesData } = useGetAllUserFacultiesQuery(undefined);
-  console.log("facultiesData", facultiesData);
-  const facultiesOption = facultiesData?.data?.map(item => ({
-    value: item._id,
-    label: `${item.name.firstName} ${item.name.middleName} ${item.name.lastName}`
-  }))
+  const { data: AllFacultiesData } = useGetAllUserFacultiesQuery(undefined);
+  const [addFaculties] = useAddFacultiesMutation();
 
   const showModal = () => {
     setIsModalOpen(true);
   };
 
-  const handleOk = () => {
+  const handleCancel = () => {
     setIsModalOpen(false);
   };
 
+  const facultiesOption = AllFacultiesData?.data?.map((item) => ({
+    value: item._id,
+    label: `${item.name.firstName} ${item.name.middleName} ${item.name.lastName}`,
+  }));
+
   const handleSubmit = (data) => {
-    console.log(data);
+    const facultiesData = {
+      courseId: facultyInfo.key,
+      data,
+    };
+
+    console.log("facultiesData", facultiesData);
+    addFaculties(facultiesData);
   };
 
   return (
     <>
       <Button onClick={showModal}>Add Faculty</Button>
-      <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk}>
+      <Modal title="Assign Faculties" open={isModalOpen} footer={null} onCancel={handleCancel}>
         <PHForm onSubmit={handleSubmit}>
-          <PHSelect mode="multiple" options={facultiesOption} name="faculties" label="Faculty"/>
+          <PHSelect
+            mode="multiple"
+            options={facultiesOption}
+            name="faculties"
+            label="Faculty"
+          />
+          <Button htmlType="submit">Submit</Button>
         </PHForm>
       </Modal>
     </>
