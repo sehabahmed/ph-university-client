@@ -2,6 +2,22 @@ import { TQueryParam } from "../../../constants/global";
 import { TResponseRedux, TSemesterRegistration } from "../../../types";
 import { baseApi } from "../../api/baseApi";
 
+interface Faculty {
+  _id: string;
+  name: {
+    firstName: string;
+    middleName?: string;
+    lastName: string;
+  };
+}
+
+interface FacultyResponse {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data: Faculty[];
+}
+
 const courseManagementApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllRegisteredSemesters: builder.query({
@@ -85,7 +101,10 @@ const courseManagementApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["courses"],
     }),
-    getCourseFaculty: builder.query({
+    getCourseFaculty: builder.query<
+      FacultyResponse,
+      { courseFacultyId: string; data: any }
+    >({
       query: (args) => {
         return {
           url: `/courses/${args.courseFacultyId}/get-faculties`,
