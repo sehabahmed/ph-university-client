@@ -20,9 +20,9 @@ const Login = () => {
   // });
 
   const defaultValues = {
-        userId: "2025020001",
-        password: "student123",
-      }
+    userId: "2025020001",
+    password: "student123",
+  };
 
   const [login] = useLoginMutation();
 
@@ -38,11 +38,15 @@ const Login = () => {
       const res = await login(userInfo).unwrap();
 
       const user = verifyToken(res.data.accessToken);
-      console.log(user);
+      console.log(res);
 
       dispatch(setUser({ user: user, token: res.data.accessToken }));
       toast.success("logged in", { id: toastId, duration: 2000 });
-      navigate(`/`);
+      if (res.data.needsPasswordChage) {
+        navigate(`/change-password`);
+      } else {
+        navigate(`/${user.role}/dashboard`);
+      }
     } catch {
       toast.error("Something went wrong!", { id: toastId, duration: 2000 });
     }
