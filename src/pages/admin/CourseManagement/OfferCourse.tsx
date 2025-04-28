@@ -2,46 +2,83 @@ import { FieldValues, SubmitHandler } from "react-hook-form";
 import PHForm from "../../../components/form/PHForm";
 import { Button, Col, Flex } from "antd";
 import {
+  useAddOfferedCourseMutation,
   useGetAllCoursesQuery,
+  useGetAllRegisteredSemestersQuery,
   useGetCourseFacultyQuery,
 } from "../../../redux/features/admin/courseManagement.api";
 import PHSelectWithWatch from "../../../components/form/PHSelectWithWatch";
 import { useState } from "react";
 import PHSelect from "../../../components/form/PHSelect";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { useGetAllSemestersQuery } from "../../../redux/features/admin/adminManagement.api";
+import {
+  useGetAllDepartmentQuery,
+  useGetAllFacultiesQuery,
+} from "../../../redux/features/admin/adminManagement.api";
+import PHInput from "../../../components/form/PHInput";
+import { weekdaysOptions } from "../../../constants/global";
+import PHTimePicker from "../../../components/form/PHTimePicker";
+import moment from "moment";
 
 const OfferCourse = () => {
-  const [id, setId] = useState("");
+  const [courseId, setCourseId] = useState("");
+  const { data: semesterRegistrations } = useGetAllRegisteredSemestersQuery([
+    { name: "sort", value: "year" },
+    { name: "status", value: "UPCOMING" },
+  ]);
+  const { data: allAcademicFaculties } = useGetAllFacultiesQuery(undefined);
+  const { data: allAcademicDepartments } = useGetAllDepartmentQuery(undefined);
   const { data: allCourses } = useGetAllCoursesQuery(undefined);
   const { data: courseFaculty } = useGetCourseFacultyQuery(
-    id ? { courseFacultyId: id, data: {} } : skipToken
+    courseId ? { courseFacultyId: courseId, data: {} } : skipToken
   );
-  const { data: semesterRegistration } = useGetAllSemestersQuery(undefined);
+  const [addOfferedCourse] = useAddOfferedCourseMutation();
 
-  const semesterRegistrationOptions = semesterRegistration?.data?.map(
+  console.log('semesterRegistrations', semesterRegistrations);
+
+  const semesterRegistrationOptions = semesterRegistrations?.data?.map(
     (item) => ({
       value: item._id,
-      label: `${item.name} ${item.year}`,
+      label: `${item.academicSemester.name} ${item.academicSemester.year}`,
     })
   );
+
+  console.log("semesterRegistrationOptions", semesterRegistrationOptions);
+
+  const allDepartmentOptions = allAcademicDepartments?.data?.map((item) => ({
+    value: item._id,
+    label: item.name,
+  }));
+
+  const academicFacultyOptions = allAcademicFaculties?.data?.map((item) => ({
+    value: item._id,
+    label: item.name,
+  }));
 
   const courseOptions = allCourses?.data?.map((item) => ({
     value: item._id,
     label: item.title,
   }));
 
-  const courseFacultyOptions =
-    courseFaculty?.data?.faculties?.map((item) => ({
-      value: courseOptions._id,
-      label: `${item.name.firstName} ${item.name.middleName} ${item.name.lastName}`,
-    })) || [];
-
-  console.log(courseFacultyOptions);
+  const courseFacultyOptions = courseFaculty?.data?.faculties?.map((item) => ({
+    value: item._id,
+    label: `${item.name.firstName} ${item.name.middleName} ${item.name.lastName}`,
+  }));
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     // const toastId = toast.loading("Creating...");
-    console.log(data);
+
+    const offeredCourseData = {
+      ...data,
+      section: Number(data.section),
+      maxCapacity: Number(data.maxCapacity),
+      startTime: moment(new Date(data.startTime)).format('HH:mm'),
+      endTime: moment(new Date(data.endTime)).format('HH:mm'),
+    };
+
+    const res = addOfferedCourse(offeredCourseData);
+
+    console.log(res);
   };
 
   return (
@@ -53,8 +90,18 @@ const OfferCourse = () => {
             name="semesterRegistration"
             label="Semester Registration"
           />
+          <PHSelect
+            options={academicFacultyOptions}
+            name="academicFaculty"
+            label="Academic Faculty"
+          />
+          <PHSelect
+            options={allDepartmentOptions}
+            name="academicDepartment"
+            label="Academic Department"
+          />
           <PHSelectWithWatch
-            onValueChange={setId}
+            onValueChange={setCourseId}
             options={courseOptions}
             name="course"
             label="Course"
@@ -63,8 +110,18 @@ const OfferCourse = () => {
             options={courseFacultyOptions}
             name="faculty"
             label="Faculty"
-            disabled={!id}
+            disabled={!courseId}
           />
+          <PHInput type="text" name="section" label="Section" />
+          <PHInput type="text" name="maxCapacity" label="Max Capacity" />
+          <PHSelect
+            mode="multiple"
+            options={weekdaysOptions}
+            name="days"
+            label="Days"
+          />
+          <PHTimePicker name="startTime" label="Start Time" />
+          <PHTimePicker name="endTime" label="End Time" />
           <Button className="" htmlType="submit">
             Submit
           </Button>
