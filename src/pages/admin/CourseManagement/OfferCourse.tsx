@@ -9,6 +9,7 @@ import PHSelectWithWatch from "../../../components/form/PHSelectWithWatch";
 import { useState } from "react";
 import PHSelect from "../../../components/form/PHSelect";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { useGetAllSemestersQuery } from "../../../redux/features/admin/adminManagement.api";
 
 const OfferCourse = () => {
   const [id, setId] = useState("");
@@ -16,9 +17,14 @@ const OfferCourse = () => {
   const { data: courseFaculty } = useGetCourseFacultyQuery(
     id ? { courseFacultyId: id, data: {} } : skipToken
   );
-  console.log("inside parent component", id);
+  const { data: semesterRegistration } = useGetAllSemestersQuery(undefined);
 
-  console.log("courseFaculty:", courseFaculty);
+  const semesterRegistrationOptions = semesterRegistration?.data?.map(
+    (item) => ({
+      value: item._id,
+      label: `${item.name} ${item.year}`,
+    })
+  );
 
   const courseOptions = allCourses?.data?.map((item) => ({
     value: item._id,
@@ -42,6 +48,11 @@ const OfferCourse = () => {
     <Flex justify="center">
       <Col span={6}>
         <PHForm onSubmit={onSubmit}>
+          <PHSelect
+            options={semesterRegistrationOptions}
+            name="semesterRegistration"
+            label="Semester Registration"
+          />
           <PHSelectWithWatch
             onValueChange={setId}
             options={courseOptions}
