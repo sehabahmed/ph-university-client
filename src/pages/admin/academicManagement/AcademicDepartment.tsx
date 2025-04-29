@@ -1,4 +1,4 @@
-import { Button, Table, TableColumnsType, TableProps } from "antd";
+import { Button, Pagination, Table, TableColumnsType, TableProps } from "antd";
 import { TAcademicDepartment } from "../../../types/academicManagement.type";
 import { useMemo, useState } from "react";
 import { TQueryParam } from "../../../constants/global";
@@ -9,9 +9,15 @@ type OnChange = NonNullable<TableProps<TTableData>["onChange"]>;
 type Filters = Parameters<OnChange>[1];
 
 const AcademicDepartment = () => {
-  const [params, setParams] = useState<TQueryParam[] | undefined>(undefined);
+  const [params, setParams] = useState<TQueryParam[]>([]);
+  const [page, setPage] = useState(1);
+
   const { data: departmentsData, isFetching } =
-    useGetAllDepartmentQuery(params);
+    useGetAllDepartmentQuery([
+      { name: "page", value: page },
+      { name: "sort", value: "id" },
+      ...params,
+    ]);
 
   const tableData = departmentsData?.data?.map(
     ({ _id, name, academicFaculty }) => ({
@@ -21,6 +27,8 @@ const AcademicDepartment = () => {
     })
   ) || [];
   console.log(tableData);
+
+  const metaData = departmentsData?.meta;
 
   const [filteredInfo, setFilteredInfo] = useState<Filters>({});
 
@@ -86,7 +94,14 @@ const AcademicDepartment = () => {
         loading={isFetching}
         columns={columns}
         dataSource={tableData}
+        pagination={false}
         onChange={handleChange}
+      />
+      <Pagination
+        defaultCurrent={page}
+        onChange={(value) => setPage(value)}
+        pageSize={metaData?.limit}
+        total={metaData?.total}
       />
     </>
   );

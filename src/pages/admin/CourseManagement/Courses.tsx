@@ -1,4 +1,4 @@
-import { Button, Modal, Table, TableColumnsType } from "antd";
+import { Button, Modal, Pagination, Table, TableColumnsType } from "antd";
 import {
   useAddFacultiesMutation,
   useGetAllCoursesQuery,
@@ -12,7 +12,11 @@ import { useGetAllUserFacultiesQuery } from "../../../redux/features/admin/userM
 export type TTableData = Pick<TCourses, "title" | "code">;
 
 const Courses = () => {
-  const { data: courseData } = useGetAllCoursesQuery(undefined);
+  const [page, setPage] = useState(1);
+  const { data: courseData } = useGetAllCoursesQuery([
+    { name: "page", value: page },
+    { name: "sort", value: "id" },
+  ]);
 
   const tableData = (courseData?.data as TCourses[])?.map(
     ({ _id, title, code }) => ({
@@ -21,6 +25,8 @@ const Courses = () => {
       code,
     })
   );
+
+  const metaData = courseData?.meta;
 
   const columns: TableColumnsType<TTableData> = [
     {
@@ -44,7 +50,17 @@ const Courses = () => {
 
   return (
     <>
-      <Table<TTableData> columns={columns} dataSource={tableData} />
+      <Table<TTableData>
+        columns={columns}
+        dataSource={tableData}
+        pagination={false}
+      />
+      <Pagination
+        defaultCurrent={page}
+        onChange={(value) => setPage(value)}
+        pageSize={metaData?.limit}
+        total={metaData?.total}
+      />
     </>
   );
 };
@@ -80,7 +96,12 @@ const AddFacultyModal = ({ facultyInfo }) => {
   return (
     <>
       <Button onClick={showModal}>Add Faculty</Button>
-      <Modal title="Assign Faculties" open={isModalOpen} footer={null} onCancel={handleCancel}>
+      <Modal
+        title="Assign Faculties"
+        open={isModalOpen}
+        footer={null}
+        onCancel={handleCancel}
+      >
         <PHForm onSubmit={handleSubmit}>
           <PHSelect
             mode="multiple"

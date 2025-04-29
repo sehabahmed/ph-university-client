@@ -19,6 +19,8 @@ import PHInput from "../../../components/form/PHInput";
 import { weekdaysOptions } from "../../../constants/global";
 import PHTimePicker from "../../../components/form/PHTimePicker";
 import moment from "moment";
+import { TResponse } from "../../../types";
+import { toast } from "sonner";
 
 const OfferCourse = () => {
   const [courseId, setCourseId] = useState("");
@@ -34,7 +36,7 @@ const OfferCourse = () => {
   );
   const [addOfferedCourse] = useAddOfferedCourseMutation();
 
-  console.log('semesterRegistrations', semesterRegistrations);
+  console.log("semesterRegistrations", semesterRegistrations);
 
   const semesterRegistrationOptions = semesterRegistrations?.data?.map(
     (item) => ({
@@ -66,19 +68,27 @@ const OfferCourse = () => {
   }));
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    // const toastId = toast.loading("Creating...");
+    const toastId = toast.loading("Creating...");
 
     const offeredCourseData = {
       ...data,
       section: Number(data.section),
       maxCapacity: Number(data.maxCapacity),
-      startTime: moment(new Date(data.startTime)).format('HH:mm'),
-      endTime: moment(new Date(data.endTime)).format('HH:mm'),
+      startTime: moment(new Date(data.startTime)).format("HH:mm"),
+      endTime: moment(new Date(data.endTime)).format("HH:mm"),
     };
 
-    const res = addOfferedCourse(offeredCourseData);
-
-    console.log(res);
+    try {
+      const res = (await addOfferedCourse(offeredCourseData)) as TResponse<any>;
+      if (res.error) {
+        toast.error(res.error.data.message, { id: toastId });
+      } else {
+        toast.success("Offered Course Created Successfully", { id: toastId });
+      }
+      console.log(res);
+    } catch (error) {
+      toast.error("Something went wrong", { id: toastId });
+    }
   };
 
   return (
