@@ -11,30 +11,30 @@ const studentManagementApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
-    getOfferedCourses: builder.query({
-      query: (args) => {
-        const params = new URLSearchParams();
-
-        if (args) {
-          args.forEach((item: TQueryParam) => {
-            params.append(item.name, item.value as string);
-          });
-        }
-
-        return {
-          url: "/offered-courses/my-offered-courses",
-          method: "GET",
-          params: params,
-        };
-      },
-      transformResponse: (response: TResponseRedux<any>) => {
-        return {
-          data: response.data,
-          meta: response.meta,
-        };
-      },
-    }),
+    getAllOfferedCourses: builder.query({
+        query: (args) => {
+          console.log(args);
+          const params = new URLSearchParams();
+  
+          if (args) {
+            args.forEach((item: TQueryParam) => {
+              params.append(item.name, item.value as string);
+            });
+          }
+          return {
+            url: '/offered-courses/my-offered-courses',
+            method: 'GET',
+            params: params,
+          };
+        },
+        transformResponse: (response: TResponseRedux<any>) => {
+          return {
+            data: response.data,
+            meta: response.meta,
+          };
+        },
+      }),
   }),
 });
 
-export const { useChangePasswordMutation,useGetOfferedCoursesQuery } = studentManagementApi;
+export const { useChangePasswordMutation,useGetAllOfferedCoursesQuery } = studentManagementApi;
