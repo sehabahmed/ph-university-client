@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Card, Col, Divider, Row, Tag } from "antd";
-import { useGetAllOfferedCoursesQuery } from "../../redux/features/student/studentManagement";
+import {
+  useEnrollCourseMutation,
+  useGetAllOfferedCoursesQuery,
+} from "../../redux/features/student/studentManagement";
 import Title from "antd/es/typography/Title";
 
 type TCourse = {
@@ -9,6 +12,7 @@ type TCourse = {
 
 const OfferedCourse = () => {
   const { data: offeredCourses } = useGetAllOfferedCoursesQuery(undefined);
+  const [enroll] = useEnrollCourseMutation();
 
   const singleObject = offeredCourses?.data?.reduce(
     (acc: TCourse, item: TCourse) => {
@@ -31,8 +35,21 @@ const OfferedCourse = () => {
 
   const modifiedData = Object.values(singleObject ? singleObject : {});
 
+  const handleEnroll = async(id: any) => {
+    const enrollData = {
+      offeredCourse: id,
+    };
+
+    const res = await enroll(enrollData);
+    console.log(res);
+  };
+
+  if(!modifiedData.length){
+    return <h2 style={{display: 'flex', justifyContent: 'center', alignContent: 'center'}}>There has not any Offer Course to Enroll!</h2>
+  }
+
   return (
-    <Row gutter={[16, 16]}>
+    <Row gutter={[16, 16]}>        
       {modifiedData.map((item: any) => (
         <Col span={24} key={item.courseTitle}>
           <Card
@@ -79,7 +96,11 @@ const OfferedCourse = () => {
                   <strong>{section.endTime}</strong>
                 </Col>
                 <Col span={2}>
-                  <Button type="primary" size="small">
+                  <Button
+                    onClick={() => handleEnroll(section._id)}
+                    type="primary"
+                    size="small"
+                  >
                     Enroll
                   </Button>
                 </Col>
