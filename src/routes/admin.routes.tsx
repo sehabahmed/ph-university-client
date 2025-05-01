@@ -16,7 +16,6 @@ import CreateStudent from "../pages/admin/userManagement/CreateStudent";
 
 import StudentData from "../pages/admin/userManagement/StudentData";
 import StudentDetails from "../pages/admin/userManagement/StudentDetails";
-import OfferedCourse from "../pages/faculty/OfferedCourse";
 
 // type TRoute = {
 //   path: string;
@@ -126,11 +125,6 @@ export const adminPaths = [
         name: "Offer Course",
         path: "offer-course",
         element: <OfferCourse />,
-      },
-      {
-        name: "Offered Courses",
-        path: "offered-courses",
-        element: <OfferedCourse />,
       },
     ],
   },
